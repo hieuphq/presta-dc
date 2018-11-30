@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql/mysql-server:5.7
+    restart: always
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=1
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWD}
+      - MYSQL_DATABASE=${DB_NAME}
+
+  prestashop_1.7.3:
+    image: prestashop/prestashop:1.7.3
+    links:
+      - mysql
+    depends_on:
+      - mysql
+    volumes:
+      - .:/var/www/html/modules/${PS_MODULE_NAME}
+    environment:
+      - DB_SERVER=mysql
+      - DB_PREFIX=ps173_
+      - PS_DEV_MODE=${PS_DEV_MODE}
+      - PS_INSTALL_AUTO=1
+      - DB_USER=${DB_USER}
+      - DB_PASSWD=${DB_PASSWD}
+      - DB_NAME=${DB_NAME}
+      - PS_DOMAIN=presta.kalimtab.com
+      - PS_FOLDER_ADMIN=${PS_FOLDER_ADMIN}
+      - PS_LANGUAGE=${PS_LANGUAGE}
+      - PS_COUNTRY=${PS_COUNTRY}
+      - PS_FOLDER_INSTALL=installed
+      #- VIRTUAL_PROTO=http
+      #- HTTPS_METHOD=redirect
+      #- HTTPS_METHOD=nohttp
+      - VIRTUAL_HOST=presta.kalimtab.com
+      #- LETSENCRYPT_HOST=presta.kalimtab.com
+      #- LETSENCRYPT_EMAIL=hieupq@dwarvesv.com
+    expose:
+      - 80
+
+networks:
+  default:
+    external:
+      name: nginx-proxy
